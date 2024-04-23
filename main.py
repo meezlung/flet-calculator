@@ -30,11 +30,17 @@ def main(page: ft.Page):
         elif event.key == "Backspace":
             if text_result_box:
                 text_result_box.pop()
-                result.value = ''.join(text_result_box)
+                if text_result_box:
+                    result.value = ''.join(text_result_box)
+                else:
+                    result.value = "0"
                 page.update()
             else:
                 result.value = "0"
                 page.update()
+
+        elif event.shift and event.key == "1":
+            update_text_result_box(data="!")
 
         elif event.shift and event.key == "=":
             update_text_result_box(data="+")
@@ -112,33 +118,45 @@ def main(page: ft.Page):
         def apply_operation(operands, operators):
             while len(operators) > 0 and len(operands) > 1:
                 op = operators.pop()
+                print(op)
                 if op == '!':
+                    print('a')
                     a = operands.pop()
                     operands.append(factorial(a))
                 elif op == '%':
+                    print('b')
                     a = operands.pop()
                     operands.append(a / 100)
                 elif op == 'ln':
+                    print('c')
                     a = operands.pop()
                     if a <= 0:
                         return None  # ln(x) where x <= 0 is undefined
                     operands.append(math.log(a))
                 elif op == 'logn':
+                    print('d')
+
                     b = operands.pop()
                     a = operands.pop()
                     if a <= 0 or b <= 0 or a == 1:
                         return None  # logn(x, base) where x <= 0, base <= 0, or x == 1 is undefined
                     operands.append(math.log(a, b))
                 elif op == 'sqrt':
+                    print('e')
+
                     a = operands.pop()
                     if a < 0:
                         return None  # Square root of a negative number is undefined
                     operands.append(math.sqrt(a))
                 elif op == '^':
+                    print('f')
+
                     b = operands.pop()
                     a = operands.pop()
                     operands.append(a ** b)
                 else:
+                    print('g')
+
                     b = operands.pop()
                     a = operands.pop()
                     if op == '+':
@@ -153,6 +171,7 @@ def main(page: ft.Page):
                         operands.append(a / b)
 
         def factorial(n):
+            print('yes')
             if n == 0:
                 return 1
             else:
