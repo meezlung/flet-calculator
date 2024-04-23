@@ -18,10 +18,21 @@ def main(page: ft.Page):
 
 
     def on_keyboard(event: ft.KeyboardEvent) -> None:
-        if event.key == "Backspace":
-            text_result_box.pop()
-            result.value = ''.join(text_result_box)
+        nonlocal text_result_box
+
+        if event.ctrl and event.key == "Backspace":
+            text_result_box = []
+            result.value = "0"
             page.update()
+        
+        elif event.key == "Backspace":
+            if text_result_box:
+                text_result_box.pop()
+                result.value = ''.join(text_result_box)
+                page.update()
+            else:
+                result.value = "0"
+                page.update()
 
         elif event.shift and event.key == "=":
             update_text_result_box(data="+")
@@ -47,8 +58,15 @@ def main(page: ft.Page):
         elif event.shift and event.key == "0":
             update_text_result_box(data=")")
 
+        elif event.key == "Enter":
+            result.value = 'ANSWER' # TODO: Implement a solver function for text_result_box
+            text_result_box = []
+            page.update()
+
         elif event.key in controls:
             update_text_result_box(event.key)
+
+        print(text_result_box)
 
     
     def button_clicked(event) -> None:
@@ -56,26 +74,20 @@ def main(page: ft.Page):
         
         data: str = event.control.data
         if data == "CE":
-            reset()
+            text_result_box = []
+            result.value = "0"
             page.update()
 
         elif data == "=":
+            result.value = 'ANSWER' # TODO: Implement a solver function for text_result_box
             text_result_box = []
-            result.value = 'ANSWER'
+            
             page.update()
 
-        
         else:
             update_text_result_box(data)
 
-
         print(text_result_box)
-        
-    def reset() -> None:
-        nonlocal text_result_box
-
-        text_result_box = []
-        result.value = "0"
 
     page.on_keyboard_event = on_keyboard
 
