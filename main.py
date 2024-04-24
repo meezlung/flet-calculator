@@ -35,6 +35,9 @@ def main(page: ft.Page):
         elif data == "!":
             data = "math.factorial"
 
+        elif data == "^":
+            data = "**"
+
         text_result_box.append(data)
         result.value = ''.join(text_result_box)
         page.update()
