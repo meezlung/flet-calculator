@@ -8,11 +8,32 @@ def main(page: ft.Page):
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
     text_result_box: list[str] = []
-    result: ft.Text = ft.Text(value="0", size=20)
+    result: ft.TextField = ft.TextField(value="0", text_size="20", show_cursor=True, text_align="end", width="440")
     controls: set[str] = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "+", "-", "/", "*", ".", "^", "%", "(", ")", "!")
 
     def update_text_result_box(data: str) -> None:
         nonlocal text_result_box
+
+        if data == "ln":
+            data = "math.log"
+
+        elif data == "log":
+            data = "math.log10"
+
+        elif data == "÷":
+            data = "/"
+
+        elif data == "×":
+            data = "*"
+
+        elif data == "√":
+            data = "math.sqrt"
+
+        elif data == "−":
+            data = "-"
+
+        elif data == "!":
+            data = "math.factorial"
 
         text_result_box.append(data)
         result.value = ''.join(text_result_box)
@@ -46,19 +67,19 @@ def main(page: ft.Page):
             update_text_result_box(data="+")
 
         elif event.shift and event.key == "8":
-            update_text_result_box(data="×")
+            update_text_result_box(data="*")
 
         elif event.key == "-":
-            update_text_result_box(data="−")
+            update_text_result_box(data="-")
 
         elif event.key == "/":
-            update_text_result_box(data="÷")
+            update_text_result_box(data="/")
             
         elif event.shift and event.key == "5":
             update_text_result_box(data="%")
 
         elif event.shift and event.key == "6":
-            update_text_result_box(data="^")
+            update_text_result_box(data="**")
 
         elif event.shift and event.key == "9":
             update_text_result_box(data="(")
@@ -68,7 +89,7 @@ def main(page: ft.Page):
 
         elif event.key == "Enter":
             if text_result_box:
-                result.value = str(evaluate_expression(text_result_box)) # TODO: Implement a solver function for text_result_box
+                result.value = eval(''.join(text_result_box)) # TODO: Implement a solver function for text_result_box
             else:
                 result.value = "0"
             text_result_box = []
@@ -91,7 +112,7 @@ def main(page: ft.Page):
 
         elif data == "=":
             if text_result_box:
-                result.value = str(evaluate_expression(text_result_box)) # TODO: Implement a solver function for text_result_box
+                result.value = eval(''.join(text_result_box)) # TODO: Implement a solver function for text_result_box
             else:
                 result.value = "0"
             text_result_box = []
@@ -102,125 +123,6 @@ def main(page: ft.Page):
             update_text_result_box(data)
 
         print(text_result_box)
-
-    def evaluate_expression(expression):
-        getcontext().prec = 20  # Set precision to handle large numbers
-        
-        def precedence(op):
-            if op in {'+', '-'}:
-                return 1
-            elif op in {'×', '÷'}:
-                return 2
-            elif op in {'^', 'sqrt', 'ln', 'logn', '%', '!'}:
-                return 3
-            return 0
-
-        def apply_operation(operands, operators):
-            while len(operators) > 0 and len(operands) > 1:
-                op = operators.pop()
-                print(op)
-                if op == '!':
-                    print('a')
-                    a = operands.pop()
-                    operands.append(factorial(a))
-                elif op == '%':
-                    print('b')
-                    a = operands.pop()
-                    operands.append(a / 100)
-                elif op == 'ln':
-                    print('c')
-                    a = operands.pop()
-                    if a <= 0:
-                        return None  # ln(x) where x <= 0 is undefined
-                    operands.append(math.log(a))
-                elif op == 'logn':
-                    print('d')
-
-                    b = operands.pop()
-                    a = operands.pop()
-                    if a <= 0 or b <= 0 or a == 1:
-                        return None  # logn(x, base) where x <= 0, base <= 0, or x == 1 is undefined
-                    operands.append(math.log(a, b))
-                elif op == 'sqrt':
-                    print('e')
-
-                    a = operands.pop()
-                    if a < 0:
-                        return None  # Square root of a negative number is undefined
-                    operands.append(math.sqrt(a))
-                elif op == '^':
-                    print('f')
-
-                    b = operands.pop()
-                    a = operands.pop()
-                    operands.append(a ** b)
-                else:
-                    print('g')
-
-                    b = operands.pop()
-                    a = operands.pop()
-                    if op == '+':
-                        operands.append(a + b)
-                    elif op == '-':
-                        operands.append(a - b)
-                    elif op == '×':
-                        operands.append(a * b)
-                    elif op == '÷':
-                        if b == 0:
-                            return None  # Division by zero is undefined
-                        operands.append(a / b)
-
-        def factorial(n):
-            print('yes')
-            if n == 0:
-                return 1
-            else:
-                return n * factorial(n - 1)
-
-        # Tokenize the input expression properly
-        def tokenize_expression(expression):
-            tokens = []
-            current_token = ''
-            for char in expression:
-                if char.isdigit() or char == '.':
-                    current_token += char
-                elif char in {'+', '-', '×', '÷', '^', '(', ')', '!', '%'}:
-                    if current_token:
-                        tokens.append(current_token)
-                        current_token = ''
-                    tokens.append(char)
-                elif char.isalpha():  # Function names like ln, logn, sqrt
-                    current_token += char
-            if current_token:
-                tokens.append(current_token)
-            return tokens
-
-        # Parse the tokens and evaluate the expression
-        def parse_and_evaluate(tokens):
-            operands = []
-            operators = []
-
-            for token in tokens:
-                if token.replace('.', '', 1).isdigit() or (token.startswith('-') and token[1:].replace('.', '', 1).isdigit()):
-                    operands.append(Decimal(token))
-                elif token in {'+', '-', '×', '÷', '^', '!', '%', 'ln', 'logn', 'sqrt'}:
-                    apply_operation(operands, operators)
-                    operators.append(token)
-                elif token == '(':
-                    operators.append(token)
-                elif token == ')':
-                    while operators[-1] != '(':
-                        apply_operation(operands, operators)
-                    operators.pop()  # Discard the opening parenthesis
-
-            apply_operation(operands, operators)
-
-            return operands[0] if operands else None
-
-        # Tokenize the input expression and evaluate it
-        tokens = tokenize_expression(expression)
-        result = parse_and_evaluate(tokens)
-        return result
     
     page.on_keyboard_event = on_keyboard
 
